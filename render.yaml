@@ -3,16 +3,16 @@ services:
   - type: web
     name: roast-master-backend
     runtime: python
-    plan: free
+    plan: free # Keep this here! Python web services need to specify the free plan.
     rootDir: roast-master-backend
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
 
   # 🌐 2. The Static Web Frontend
-  - type: web # 👈 Changed this from static to web
+  - type: web
     name: roast-master-frontend
-    runtime: static # 👈 Added this line to let Render know it's a static site
-    plan: free
+    runtime: static
+    # ❌ (Removed the 'plan: free' line from here)
     rootDir: roast-master-frontend
     buildCommand: "" 
     staticPublishPath: "."
