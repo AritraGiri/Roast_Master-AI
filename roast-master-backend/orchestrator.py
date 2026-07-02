@@ -42,9 +42,7 @@ MODEL_JUDGE     = "groq/llama-3.3-70b-versatile"
 # Or place them in a .env file and load with `python-dotenv`.
 # NEVER hard-code keys here — this file may end up in version control.
 
-os.environ["GROQ_API_KEY"]       = os.environ.get("GROQ_API_KEY", "")        # https://console.groq.com
-os.environ["GEMINI_API_KEY"]     = os.environ.get("GEMINI_API_KEY", "")      # https://aistudio.google.com/apikey
-os.environ["OPENROUTER_API_KEY"] = os.environ.get("OPENROUTER_API_KEY", "")  # https://openrouter.ai/keys
+
 
 # Optional: set ANTHROPIC_API_KEY here if you swap the Judge to claude-*
 # os.environ["ANTHROPIC_API_KEY"] = os.environ.get("ANTHROPIC_API_KEY", "")  # https://console.anthropic.com
@@ -261,8 +259,16 @@ async def run_multi_agent_pipeline(
         call_observer (query, user_profile),
         call_sarcastic(query, user_profile),
         call_brutal   (query, user_profile),
-        return_exceptions=False,  # individual try/except blocks handle errors above
+        return_exceptions=True,  # individual try/except blocks handle errors above
     )
+
+  # Ensure any caught exceptions are converted to fallback strings
+    if isinstance(observer_out, Exception):
+        observer_out = f"[Observer offline due to error]"
+    if isinstance(sarcastic_out, Exception):
+        sarcastic_out = f"[Sarcastic agent offline due to error]"
+    if isinstance(brutal_out, Exception):
+        brutal_out = f"[Brutal agent offline due to error]"
 
     # ── Step 2: Run the Judge (sequential — needs all three outputs) ──────
     final_roast = await call_judge(
